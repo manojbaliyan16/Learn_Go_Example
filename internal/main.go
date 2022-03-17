@@ -1,17 +1,29 @@
 package main
 
 import (
-	"fmt"
-	"html"
+	"github.com/manojbaliyan16/Learn_Go_Example.git/pkg/swagger/server/restapi"
+	"github.com/scraly/http-go-server/pkg/swagger/server/restapi/operations"
 	"log"
-	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-	})
-	log.Println("Listening to localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	// Initialize Swagger
+	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	api := operations.NewHelloAPI(swaggerSpec)
+	server := restapi.NewServer(api)
+	defer server.Shutdown()
+
+	server.Port = 8080
+
+	// Start listening using having the handlers and port
+	// already set up.
+	if err := server.Serve(); err != nil {
+		log.Fatalln(err)
+	}
 
 }
